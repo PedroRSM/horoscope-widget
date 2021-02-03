@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>JavaScript - read JSON from URL</title>
+  <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+  <style>
+    #widget{
+      width: 400px;
+    }
+    #grid-container {
+      grid-template-columns: auto auto auto auto;
+      border: 1px solid white;
+      background: white;
+    }
+    .grid-container {
+      display: grid;
+      padding: 10px;
+    }
+
+    .grid-item {
+      width: 100px;
+      background-color: rgba(255, 255, 255, 0.8);
+      font-size: 30px;
+      text-align: center;
+    }
+  </style>
+</head>
+
+<body>
+
+<div id="widget">
+
+  <!--Lista de Signos-->
+  <div class="zodiac_list" id="zodiac-list" style="display: inline-block">
+    <div class="grid-container" id="grid-container">
+      <div class="grid-item">
+        <button onclick="getHoroscope(this.id)" id="aries">
+          Aries
+        </button>
+      </div>
+      <div class="grid-item">
+        <button onclick="getHoroscope(this.id)" id="taurus">
+          Touro
+        </button>
+      </div>
+      <div class="grid-item">
+        <button onclick="getHoroscope(this.id)" id="gemini">
+          Gemeos
+        </button>
+      </div>
+      <div class="grid-item">
+        <button onclick="getHoroscope(this.id)" id="cancer">
+          Cancer
+        </button>
+      </div>
+      <div class="grid-item">
+        <button onclick="getHoroscope(this.id)" id="leo">
+          Leao
+        </button>
+      </div>
+      <div class="grid-item">
+        <button onclick="getHoroscope(this.id)" id="virgo">
+          Virgem
+        </button>
+      </div>
+      <div class="grid-item">
+        <button onclick="getHoroscope(this.id)" id="libra">
+          Libra
+        </button>
+      </div>
+      <div class="grid-item">
+        <button onclick="getHoroscope(this.id)" id="scorpio">
+          Escorpiao
+        </button>
+      </div>
+      <div class="grid-item">
+        <button onclick="getHoroscope(this.id)" id="sagittarius">
+          Sagitario
+        </button>
+      </div>
+      <div class="grid-item">
+        <button onclick="getHoroscope(this.id)" id="capricorn">
+          Capricornio
+        </button>
+      </div>
+      <div class="grid-item">
+        <button onclick="getHoroscope(this.id)" id="aquarius">
+          Aquario
+        </button>
+      </div>
+      <div class="grid-item">
+        <button onclick="getHoroscope(this.id)" id="pisces">
+          Peixes
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!--Horoscopo-->
+  <div class="daily-horoscope" id="daily-horoscope" style="display: none">
+    <p id="zodiac"></p>
+    <p id="back_button">
+      <button onclick="goBack()" id="back">Back</button>
+    </p>
+    <p id="love"></p>
+    <p id="money"></p>
+    <p id="health"></p>
+  </div>
+
+</div>
+
+<!--tamanho do widget-->
+<div>
+  <p>Exemplo de tamanhos</p>
+  <p>
+    <div>
+  <button onclick="changeSize(this.id)" id="12">
+    12
+  </button>
+  <button onclick="changeSize(this.id)" id="6">
+    6
+  </button>
+  <button onclick="changeSize(this.id)" id="4">
+    4
+  </button>
+  <button onclick="changeSize(this.id)" id="3">
+    3
+  </button>
+  <button onclick="changeSize(this.id)" id="2">
+    2
+  </button>
+</div>
+  </p>
+</div>
+
+<!--alterar Border e Backgound-->
+<div>
+  <label for="border-color">Border</label>
+  <input name="BorderColor"
+         type="color"
+         id="border-color" onchange="changeBorderColor()" value="#FFFFFF"/>
+  <input type="text" id="selected-border-color" value="#FFFFFF" onchange="changeBorderColorText()">
+</div>
+<div>
+  <label for="background-color">Fundo</label>
+  <input name="BackgroundColor"
+         type="color"
+         id="background-color" onchange="changeBackgroundColor()" value="#FFFFFF"/>
+  <input type="text" id="selected-background-color" value="#FFFFFF" onchange="changeBackgroundColorText()">
+</div>
+
+<!--TextArea com o script-->
+<div>
+  <textarea></textarea>
+</div>
+
+<script>
+  //Botão de tamanho por defeito
+  document.addEventListener("DOMContentLoaded", function(event) {
+    document.getElementById("4").click();
+  });
+
+  //alterar tamanho do widget
+  function changeSize(size) {
+    if(size === "12"){
+      document.getElementById(
+        "widget").style.width = "1200px";
+      document.getElementById(
+        "grid-container").style.gridTemplateColumns = "auto auto auto auto auto auto auto auto auto auto auto auto";
+    }else if (size === "6"){
+      document.getElementById(
+        "widget").style.width = "600px";
+      document.getElementById(
+        "grid-container").style.gridTemplateColumns = "auto auto auto auto auto auto";
+    }else if (size === "4"){
+      document.getElementById(
+        "widget").style.width = "400px";
+      document.getElementById(
+        "grid-container").style.gridTemplateColumns = "auto auto auto auto";
+    }else if (size === "3"){
+      document.getElementById(
+        "widget").style.width = "300px";
+      document.getElementById(
+        "grid-container").style.gridTemplateColumns = "auto auto auto";
+    }else if (size === "2"){
+      document.getElementById(
+        "widget").style.width = "200px";
+      document.getElementById(
+        "grid-container").style.gridTemplateColumns = "auto auto";
+    }
+  }
+
+  // Get API hroscopo
+  function getHoroscope(clicked_id) {
+    var zodiac = clicked_id;
+    $.getJSON('https://feeds.wemystic.net/horoscope-daily-en.json', function (data) {
+      var d = new Date(),
+        month = '' + (d.getMonth() + 1),
+        day = '' + d.getDate(),
+        year = d.getFullYear();
+
+      if (month.length < 2)
+        month = '0' + month;
+      if (day.length < 2)
+        day = '0' + day;
+      today = [year, month, day].join('-');
+      var love = "Love: " + data.horoscope[1][today][zodiac].love.toString();
+      var money = "Money: " + data.horoscope[1][today][zodiac].money.toString();
+      var health = "Health: " + data.horoscope[1][today][zodiac].health.toString();
+
+      // Apaga os signos
+      document.getElementById("zodiac-list").style = "display: none";
+
+      document.getElementById("daily-horoscope").style = "display: inline-block";
+
+      //Replace Signo
+      document.getElementById("zodiac").innerHTML = zodiac.toUpperCase();
+
+      //Replace Texto Amor
+      document.getElementById("love").innerHTML = love;
+
+      //Replace Texto Dinheiro
+      document.getElementById("money").innerHTML = money;
+
+      //Replace Texto Saude
+      document.getElementById("health").innerHTML = health;
+    });
+
+  }
+
+  //mudar cor border Botão
+  function changeBorderColor() {
+    var color = document.getElementById(
+      "border-color").value;
+    document.getElementById(
+      "grid-container").style.border = "1px solid" + color;
+    document.getElementById("selected-border-color").value = color;
+  }
+  //mudar cor border Texto
+  function changeBorderColorText() {
+    var color = document.getElementById(
+      "selected-border-color").value;
+    document.getElementById(
+      "grid-container").style.border = "1px solid" + color;
+    document.getElementById("border-color").value = color;
+  }
+
+  //mudar cor background Butão
+  function changeBackgroundColor() {
+    var color = document.getElementById(
+      "background-color").value;
+    document.getElementById(
+      "grid-container").style.background = color;
+    document.getElementById("selected-background-color").value = color;
+  }
+  //mudar cor do background texto
+  function changeBackgroundColorText() {
+    var color = document.getElementById(
+      "selected-background-color").value;
+    document.getElementById(
+      "grid-container").style.background = color;
+    document.getElementById("background-color").value = color;
+  }
+
+  //butão de voltar atrás
+  function goBack() {
+    document.getElementById("zodiac-list").style = "display: inline-block";
+    document.getElementById("daily-horoscope").style = 'display: none';
+  }
+
+
+</script>
+
+</body>
+</html>
